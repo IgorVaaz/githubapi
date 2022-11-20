@@ -1,9 +1,11 @@
-package com.igor.nvpc.models;
+package com.igor.nvpc.jsons;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
 import java.util.List;
 
+@Getter
 public class Root {
     public int id;
     public String node_id;
@@ -13,7 +15,7 @@ public class Root {
     public boolean myprivate;
     public Owner owner;
     public String html_url;
-    public String description;
+    public Object description;
     public boolean fork;
     public String url;
     public String forks_url;
@@ -59,7 +61,7 @@ public class Root {
     public String ssh_url;
     public String clone_url;
     public String svn_url;
-    public String homepage;
+    public Object homepage;
     public int size;
     public int stargazers_count;
     public int watchers_count;
@@ -75,7 +77,7 @@ public class Root {
     public boolean archived;
     public boolean disabled;
     public int open_issues_count;
-    public Object license;
+    public License license;
     public boolean allow_forking;
     public boolean is_template;
     public boolean web_commit_signoff_required;

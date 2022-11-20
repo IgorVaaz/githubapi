@@ -1,5 +1,8 @@
-package com.igor.nvpc.models;
+package com.igor.nvpc.jsons;
 
+import lombok.Getter;
+
+@Getter
 public class Owner {
     public String login;
     public int id;
