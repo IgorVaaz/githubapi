@@ -1,4 +1,13 @@
 spring:
+  application:
+    swagger:
+      title: "APP-GITHUB-APP-JAVA"
+      description: "Rest for api github"
+      version: "1.0.0"
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+url:
+  services:
+    api-github: https://api.github.com/users/{user}/repos

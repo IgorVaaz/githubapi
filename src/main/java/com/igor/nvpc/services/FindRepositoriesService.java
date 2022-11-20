@@ -1,12 +1,18 @@
 package com.igor.nvpc.services;
 
-import com.igor.nvpc.models.Filter;
-import com.igor.nvpc.models.Order;
-import com.igor.nvpc.models.Root;
+import com.igor.nvpc.exceptions.RestTemplateErrorException;
+import com.igor.nvpc.jsons.Root;
+import com.igor.nvpc.operations.Filter;
+import com.igor.nvpc.operations.Order;
+import com.igor.nvpc.rest.FindRepositoriesServiceRest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -14,34 +20,29 @@ public class FindRepositoriesService {
 
     private final FindRepositoriesServiceRest findRepositoriesServiceRest;
 
-    public FindRepositoriesService(FindRepositoriesServiceRest findRepositoriesServiceRest) {
+    public FindRepositoriesService(final FindRepositoriesServiceRest findRepositoriesServiceRest) {
         this.findRepositoriesServiceRest = findRepositoriesServiceRest;
     }
 
-    public Collection<Root> execute(final String user, final String filter, final String order){
-        final var filterOperation = getFilter(filter);
-        final var orderOperation = getOrder(order);
+    public Collection<Root> execute(final String user, final Filter filter, final Order order, final String search) throws RestTemplateErrorException {
         final var root = findRepositoriesServiceRest.execute(user);
-        final var rootFiltered = filterOperation.filter(root);
-        return orderOperation.order(rootFiltered);
+        final var rootFilteredAndOrderly = filterAndOrderRoot(root, filter, order);
+        return searchInList(search, rootFilteredAndOrderly);
     }
 
-    private Filter getFilter(final String filter){
-        try{
-            return Filter.valueOf(filter);
-        } catch (final Exception exception){
-            log.error("Filter not found: {}", exception.getMessage()); //usando lombock
-            return Filter.ACTIVE;
-        }
+    private List<Root> filterAndOrderRoot(final List<Root> root, final Filter filter, final Order order) {
+        log.info("Filter: {}", filter.getValue());
+        log.info("Order: {}", order.getValue());
+        final var rootFiltered = filter.execute(root);
+        return order.execute(rootFiltered);
     }
 
-    private Order getOrder(final String order){
-        try {
-            return Order.valueOf(order);
-        } catch (final Exception exception){
-            log.error("Order not found: {}", exception.getMessage());
-            return Order.ALPHABETICAL;
+    private List<Root> searchInList(final String search, final List<Root> rootFilteredAndOrderly) {
+        if (StringUtils.isBlank(search)) {
+            return rootFilteredAndOrderly;
         }
+        log.info("Search: {}", search);
+        return rootFilteredAndOrderly.stream().filter(r -> r.name.toUpperCase(Locale.ROOT).contains(search.toUpperCase(Locale.ROOT))).collect(Collectors.toList());
     }
 
 }
